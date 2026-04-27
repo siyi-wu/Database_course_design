@@ -8,7 +8,9 @@
 - `02_cursor_procedures.sql`：两个使用游标操作数据表的存储过程
 - `03_index_analysis.sql`：索引创建与 `EXPLAIN` 分析脚本
 - `04_normalization_design.md`：规范化设计说明，可直接整理进报告
-- `05_rds_limitations.md`：当前配置的 MySQL 数据库 无法完整验证作业要求的原因说明
+- `06_benchmark_setup.sql`：大数据量 benchmark 表与测试数据
+- `07_benchmark_queries.sql`：benchmark 查询与索引前后对比 SQL
+- `08_benchmark_results.md`：VSCode 查看方法与基准测试结果整理
 
 建议执行顺序：
 
@@ -16,7 +18,9 @@
 2. `02_cursor_procedures.sql`
 3. `CALL sp_sync_equipment_status();`
 4. `03_index_analysis.sql`
+5. `06_benchmark_setup.sql`
+6. `07_benchmark_queries.sql`
 
 注意：
 
-本目录中的 SQL 按标准 `MySQL 8.0 + InnoDB` 编写。你当前提供的阿里云实例会把新表强制落成 `DUCKDB` 引擎，导致外键、复合索引和部分游标过程无法按课程要求真实验证，详见 `05_rds_limitations.md`。
+本目录中的 SQL 按标准 `MySQL 8.0 + InnoDB` 编写，现已在新的阿里云 MySQL 实例 `<db_host>` 上完成验证，可以作为当前正式作业环境使用。

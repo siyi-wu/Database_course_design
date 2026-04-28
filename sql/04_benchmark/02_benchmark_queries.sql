@@ -1,5 +1,3 @@
-USE <database_name>;
-
 EXPLAIN FORMAT=TREE
 SELECT SQL_NO_CACHE equip_id, equip_name, status
 FROM benchmark_equipments

@@ -10,9 +10,11 @@ SOURCE sql/02_programmability/01_cursor_procedures.sql;
 SOURCE sql/03_indexes/01_index_analysis.sql;
 SOURCE sql/02_programmability/02_triggers.sql;
 SOURCE sql/02_programmability/03_parameterized_routines.sql;
+SOURCE sql/02_programmability/04_views.sql;
+SOURCE sql/02_programmability/05_transaction_demo.sql;
 ```
 
-如果云数据库中已经存在基础表、游标过程和索引，只需执行触发器、带参过程和函数脚本。
+如果配置的 MySQL 数据库中已经存在基础表、游标过程和索引，只需执行触发器、带参过程和函数、视图、事务演示脚本。
 
 ## 2. 借用设备
 
@@ -67,3 +69,35 @@ SHOW PROCEDURE STATUS WHERE Db = DATABASE();
 ```sql
 SHOW FUNCTION STATUS WHERE Db = DATABASE();
 ```
+
+查看视图：
+
+```sql
+SHOW FULL TABLES WHERE Table_type = 'VIEW';
+SELECT * FROM v_equipment_detail LIMIT 10;
+SELECT * FROM v_borrowrecord_detail LIMIT 10;
+```
+
+## 6. 事务借用演示
+
+```sql
+CALL sp_borrow_equipment_tx(设备编号, 用户编号, CURRENT_DATE(), 7);
+```
+
+该过程使用显式事务和 `SELECT ... FOR UPDATE` 锁定设备行，用于展示并发借用场景下的事务控制思路。
+
+## 7. 备份与恢复
+
+备份数据库：
+
+```bash
+scripts/backup_database.sh
+```
+
+恢复数据库：
+
+```bash
+scripts/restore_database.sh backups/备份文件.sql
+```
+
+详细说明见 `docs/manual/02_backup_restore_manual.md`。

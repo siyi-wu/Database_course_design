@@ -28,6 +28,10 @@
 - 索引分析：由 `sql/03_indexes/01_index_analysis.sql` 和 benchmark 脚本完成。
 - 触发器：由 `sql/02_programmability/02_triggers.sql` 完成。
 - 带参过程和函数：由 `sql/02_programmability/03_parameterized_routines.sql` 完成。
+- 视图：由 `sql/02_programmability/04_views.sql` 封装设备详情和借用详情查询。
+- 事务演示过程：由 `sql/02_programmability/05_transaction_demo.sql` 展示 `FOR UPDATE` 行级锁和回滚处理。
+- 数据库安全：由 `sql/06_admin/01_security_setup.sql` 提供最小权限账号授权模板。
+- 备份恢复：由 `scripts/backup_database.sh` 和 `scripts/restore_database.sh` 提供逻辑备份和恢复脚本。
 
 ## 4. 借还流程设计
 

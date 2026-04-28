@@ -15,7 +15,7 @@
 
 ## 2. 基础数据库对象实现
 
-项目已经完成题目数据库要求中的 `(1)(4)(5)`，相关 SQL 位于 `sql/01_schema/`、`sql/02_programmability/`、`sql/03_indexes/` 和 `sql/04_benchmark/`，并且已经在阿里云 MySQL RDS 数据库 `<database_name>` 中运行验证。基础表结构是后续实现的基础，不能重复重建一套不兼容的表结构。
+项目已经完成题目数据库要求中的 `(1)(4)(5)`，相关 SQL 位于 `sql/01_schema/`、`sql/02_programmability/`、`sql/03_indexes/` 和 `sql/04_benchmark/`，并且已经在配置的 MySQL 数据库中运行验证。基础表结构是后续实现的基础，不能重复重建一套不兼容的表结构。
 
 ### 2.1 数据表与参照关系
 
@@ -55,7 +55,7 @@
 
 `sql/04_benchmark/01_benchmark_setup.sql`、`sql/04_benchmark/02_benchmark_queries.sql` 和 `docs/testing/03_benchmark_results.md` 进一步构造 benchmark 数据并进行索引前后对比，满足题目 `(5)`。其中最典型的是用户最近借用记录查询，复合索引同时支持筛选、排序和 `LIMIT`，优化效果明显。
 
-后续实现应与系统主题、表结构和命名风格保持一致，不应另起一个系统，也不应破坏已运行的云数据库对象。
+后续实现应与系统主题、表结构和命名风格保持一致，不应另起一个系统，也不应破坏已运行的数据库对象。
 
 ## 3. 触发器、带参过程和规范化实现目标
 
@@ -119,7 +119,7 @@
 - 主键、外键、唯一约束说明。
 - 规范化后的收益和权衡。
 
-## 5. 云数据库实施步骤
+## 5. 配置的 MySQL 数据库实施步骤
 
 数据库连接信息存放在 `config.txt` 中，类型为 MySQL，目标库为 `<database_name>`。实施时应注意：
 

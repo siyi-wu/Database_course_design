@@ -2,4 +2,13 @@
 
 config.txt
 
-reports
+ui/node_modules/
+ui/dist/
+ui/.env
+ui/.env.*
+!ui/.env.example
+
+backups/
+*.sql.bak
+
+演示操作流程.md

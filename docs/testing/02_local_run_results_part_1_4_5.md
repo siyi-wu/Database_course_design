@@ -4,7 +4,7 @@
 
 - MySQL 版本：`8.0.37`
 - 默认存储引擎：`InnoDB`
-- 本地数据库名：`<database_name>_local`
+- 本地数据库名：`<local_database_name>`
 
 ## 1. 表与数据量
 

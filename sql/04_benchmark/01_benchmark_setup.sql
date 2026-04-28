@@ -1,5 +1,3 @@
-USE <database_name>;
-
 DROP TABLE IF EXISTS benchmark_borrowrecords;
 DROP TABLE IF EXISTS benchmark_equipments;
 

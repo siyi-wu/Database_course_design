@@ -1,0 +1,8 @@
+连接信息：
+数据库类型: MySQL
+host: your-mysql-host
+port: 3306
+username: your-username
+password: your-password
+database: your-database-name
+连接方式: MySQL

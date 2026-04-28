@@ -13,8 +13,8 @@
 - `01_triggers.sql`：创建 3 个借还业务触发器。
 - `02_parameterized_routines.sql`：创建 2 个带参存储过程和 1 个带参函数。
 - `03_normalization_process.md`：规范化理论建模详细过程。
-- `04_demo_and_test.sql`：云数据库演示与测试脚本。
-- `05_cloud_run_results.md`：云数据库执行结果记录。
+- `04_demo_and_test.sql`：配置的 MySQL 数据库演示与测试脚本。
+- `05_cloud_run_results.md`：配置的 MySQL 数据库执行结果记录。
 
 ## 执行顺序
 

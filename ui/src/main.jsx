@@ -8,11 +8,13 @@ import {
   Database,
   Gauge,
   History,
+  ListChecks,
   Plus,
   RefreshCw,
   RotateCcw,
   Save,
   Search,
+  Shuffle,
   Trash2,
   UserRound,
   Wrench
@@ -74,7 +76,11 @@ function App() {
     roomId: "",
     userQ: "",
     recordQ: "",
-    recordActive: ""
+    recordActive: "",
+    viewEquipmentQ: "",
+    viewEquipmentStatus: "",
+    viewRecordQ: "",
+    viewRecordStatus: ""
   });
   const [equipmentForm, setEquipmentForm] = useState(emptyEquipment);
   const [userForm, setUserForm] = useState(emptyUser);
@@ -84,9 +90,15 @@ function App() {
     equip_id: "",
     user_id: "",
     borrow_date: today(),
-    days: 7
+    days: 7,
+    use_transaction: true
   });
   const [returnForm, setReturnForm] = useState({ record_id: "", return_date: today() });
+  const [transferForm, setTransferForm] = useState({ from_room_id: "", to_room_id: "", limit: 5 });
+  const [activeCountForm, setActiveCountForm] = useState({ user_id: "" });
+  const [activeCountResult, setActiveCountResult] = useState(null);
+  const [viewEquipments, setViewEquipments] = useState([]);
+  const [viewRecords, setViewRecords] = useState([]);
   const [editing, setEditing] = useState({ type: "", id: null });
 
   const tabs = useMemo(
@@ -97,7 +109,8 @@ function App() {
       { id: "users", label: "用户", icon: UserRound },
       { id: "rooms", label: "房间", icon: Building2 },
       { id: "categories", label: "类别", icon: Database },
-      { id: "records", label: "记录", icon: History }
+      { id: "records", label: "记录", icon: History },
+      { id: "dbfeatures", label: "数据库功能", icon: ListChecks }
     ],
     []
   );
@@ -143,11 +156,32 @@ function App() {
     setRecords(await api(`/records?${params}`));
   }
 
+  async function loadViewEquipments() {
+    const params = new URLSearchParams({
+      q: filters.viewEquipmentQ,
+      status: filters.viewEquipmentStatus
+    });
+    setViewEquipments(await api(`/views/equipment-detail?${params}`));
+  }
+
+  async function loadViewRecords() {
+    const params = new URLSearchParams({
+      q: filters.viewRecordQ,
+      status: filters.viewRecordStatus
+    });
+    setViewRecords(await api(`/views/borrowrecord-detail?${params}`));
+  }
+
+  async function loadDatabaseFeatures() {
+    await Promise.all([loadViewEquipments(), loadViewRecords()]);
+  }
+
   async function refreshAll() {
     setLoading(true);
     try {
       await loadBase();
       await Promise.all([loadStats(), loadUsers(), loadEquipments(), loadRecords()]);
+      await loadDatabaseFeatures();
     } catch (error) {
       toast(error.message, "error");
     } finally {
@@ -162,6 +196,12 @@ function App() {
   useEffect(() => {
     loadEquipments().catch((error) => toast(error.message, "error"));
   }, [filters.equipmentStatus, filters.categoryId, filters.roomId]);
+
+  useEffect(() => {
+    if (activeTab === "dbfeatures") {
+      loadDatabaseFeatures().catch((error) => toast(error.message, "error"));
+    }
+  }, [activeTab]);
 
   async function saveEquipment(event) {
     event.preventDefault();
@@ -225,13 +265,40 @@ function App() {
   async function borrowEquipment(event) {
     event.preventDefault();
     await mutate("/borrow", "POST", borrowForm, "借用成功");
-    setBorrowForm({ equip_id: "", user_id: "", borrow_date: today(), days: 7 });
+    setBorrowForm({ equip_id: "", user_id: "", borrow_date: today(), days: 7, use_transaction: true });
   }
 
   async function returnEquipment(event) {
     event.preventDefault();
     await mutate("/return", "POST", returnForm, "归还成功");
     setReturnForm({ record_id: "", return_date: today() });
+  }
+
+  async function syncEquipmentStatus() {
+    await mutate("/admin/sync-status", "POST", {}, "设备状态已同步");
+  }
+
+  async function batchTransfer(event) {
+    event.preventDefault();
+    if (transferForm.from_room_id === transferForm.to_room_id) {
+      toast("调出和调入实验室不能相同", "error");
+      return;
+    }
+    await mutate("/admin/batch-transfer", "POST", transferForm, "可用设备已批量调拨");
+  }
+
+  async function queryActiveCount(event) {
+    event.preventDefault();
+    setLoading(true);
+    try {
+      const data = await api(`/users/${activeCountForm.user_id}/active-count`);
+      setActiveCountResult(data.active_count);
+      toast("函数查询完成");
+    } catch (error) {
+      toast(error.message, "error");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function searchButton(onClick) {
@@ -349,6 +416,7 @@ function App() {
                 <Field label="用户编号" type="number" value={borrowForm.user_id} onChange={(v) => setBorrowForm({ ...borrowForm, user_id: v })} required />
                 <Field label="借用日期" type="date" value={borrowForm.borrow_date} onChange={(v) => setBorrowForm({ ...borrowForm, borrow_date: v })} required />
                 <Field label="借用天数" type="number" value={borrowForm.days} onChange={(v) => setBorrowForm({ ...borrowForm, days: v })} required />
+                <Toggle label="事务行锁" checked={borrowForm.use_transaction} onChange={(v) => setBorrowForm({ ...borrowForm, use_transaction: v })} />
                 <button className="primary"><Plus size={17} />借出</button>
               </form>
             </Panel>
@@ -428,6 +496,55 @@ function App() {
             <RecordTable rows={records} onPick={(row) => setReturnForm({ ...returnForm, record_id: row.record_id })} />
           </Panel>
         )}
+
+        {activeTab === "dbfeatures" && (
+          <section className="stack">
+            <div className="split">
+              <Panel title="游标过程">
+                <div className="form-grid single">
+                  <button className="primary" type="button" onClick={syncEquipmentStatus}>
+                    <RefreshCw size={17} />同步设备状态
+                  </button>
+                </div>
+                <form className="form-grid transfer-form" onSubmit={batchTransfer}>
+                  <Select label="调出实验室" value={transferForm.from_room_id} onChange={(v) => setTransferForm({ ...transferForm, from_room_id: v })} options={[["", "请选择"], ...rooms.map((r) => [r.room_id, r.room_name])]} required />
+                  <Select label="调入实验室" value={transferForm.to_room_id} onChange={(v) => setTransferForm({ ...transferForm, to_room_id: v })} options={[["", "请选择"], ...rooms.map((r) => [r.room_id, r.room_name])]} required />
+                  <Field label="调拨数量" type="number" value={transferForm.limit} onChange={(v) => setTransferForm({ ...transferForm, limit: v })} required min="1" />
+                  <button className="primary"><Shuffle size={17} />批量调拨</button>
+                </form>
+              </Panel>
+
+              <Panel title="函数查询">
+                <form className="form-grid single" onSubmit={queryActiveCount}>
+                  <Field label="用户编号" type="number" value={activeCountForm.user_id} onChange={(v) => setActiveCountForm({ user_id: v })} required />
+                  <button className="primary"><Search size={17} />查询未归还数</button>
+                </form>
+                <div className="function-result">
+                  <span>未归还设备数</span>
+                  <strong>{activeCountResult ?? "--"}</strong>
+                </div>
+              </Panel>
+            </div>
+
+            <Panel title="设备明细视图">
+              <Toolbar>
+                <Field compact placeholder="设备、类别、房间或位置" value={filters.viewEquipmentQ} onChange={(v) => setFilters({ ...filters, viewEquipmentQ: v })} />
+                <Select compact value={filters.viewEquipmentStatus} onChange={(v) => setFilters({ ...filters, viewEquipmentStatus: v })} options={[["", "全部状态"], ...["Available", "Borrowed", "Maintenance", "Scrapped"].map((s) => [s, statusLabels[s]])]} />
+                {searchButton(loadViewEquipments)}
+              </Toolbar>
+              <ViewEquipmentTable rows={viewEquipments} />
+            </Panel>
+
+            <Panel title="借用明细视图">
+              <Toolbar>
+                <Field compact placeholder="记录、设备、用户或电话" value={filters.viewRecordQ} onChange={(v) => setFilters({ ...filters, viewRecordQ: v })} />
+                <Select compact value={filters.viewRecordStatus} onChange={(v) => setFilters({ ...filters, viewRecordStatus: v })} options={[["", "全部状态"], ["Active", "未归还"], ["Overdue", "逾期"], ["Returned", "已归还"]]} />
+                {searchButton(loadViewRecords)}
+              </Toolbar>
+              <ViewRecordTable rows={viewRecords} />
+            </Panel>
+          </section>
+        )}
       </main>
     </div>
   );
@@ -504,6 +621,15 @@ function Select({ label, compact, value, onChange, options, ...props }) {
   );
 }
 
+function Toggle({ label, checked, onChange }) {
+  return (
+    <label className="toggle-field">
+      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
+      <span>{label}</span>
+    </label>
+  );
+}
+
 function StatusBar({ name, count, total }) {
   const width = `${Math.round((count / total) * 100)}%`;
   return (
@@ -563,6 +689,45 @@ function RecordTable({ rows, onPick, compact }) {
         row.actual_return_date || "-",
         <StatusPill value={row.record_status} />,
         <button className="small" onClick={() => onPick?.(row)}>选择</button>
+      ])}
+    />
+  );
+}
+
+function ViewEquipmentTable({ rows }) {
+  return (
+    <SimpleTable
+      columns={["编号", "设备", "类别", "房间", "位置", "管理员", "状态", "价格", "购置日期"]}
+      rows={rows.map((row) => [
+        row.equip_id,
+        row.equip_name,
+        row.category_name,
+        row.room_name,
+        row.location,
+        row.admin_name,
+        <StatusPill value={row.status} />,
+        row.price,
+        row.purchase_date
+      ])}
+    />
+  );
+}
+
+function ViewRecordTable({ rows }) {
+  return (
+    <SimpleTable
+      columns={["编号", "设备", "设备状态", "用户", "角色", "联系方式", "借用日期", "计划归还", "实际归还", "记录状态"]}
+      rows={rows.map((row) => [
+        row.record_id,
+        row.equip_name,
+        <StatusPill value={row.equipment_status} />,
+        row.user_name,
+        row.role,
+        row.contact,
+        row.borrow_date,
+        row.plan_return_date,
+        row.actual_return_date || "-",
+        <StatusPill value={row.record_status} />
       ])}
     />
   );

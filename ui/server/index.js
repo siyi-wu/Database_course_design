@@ -213,6 +213,23 @@ app.get("/api/equipments", (req, res) => {
   `, { q, keyword: like(q), status, category, room });
 });
 
+app.get("/api/views/equipment-detail", (req, res) => {
+  const q = String(req.query.q || "").trim();
+  const status = String(req.query.status || "").trim();
+  const limit = Math.min(toInt(req.query.limit, 100), 300);
+  query(res, `
+    SELECT
+      equip_id, equip_name, category_id, category_name, room_id, room_name,
+      location, admin_name, status, price, purchase_date
+    FROM v_equipment_detail
+    WHERE (:q = '' OR equip_name LIKE :keyword OR category_name LIKE :keyword
+      OR room_name LIKE :keyword OR location LIKE :keyword OR CAST(equip_id AS CHAR) = :q)
+      AND (:status = '' OR status = :status)
+    ORDER BY equip_id DESC
+    LIMIT ${limit}
+  `, { q, keyword: like(q), status });
+});
+
 app.post("/api/equipments", (req, res) => {
   const { equip_name, category_id, room_id, status, price, purchase_date } = req.body;
   execute(res, `
@@ -273,10 +290,31 @@ app.get("/api/records", (req, res) => {
   `, { q, keyword: like(q), active });
 });
 
+app.get("/api/views/borrowrecord-detail", (req, res) => {
+  const q = String(req.query.q || "").trim();
+  const status = String(req.query.status || "").trim();
+  const limit = Math.min(toInt(req.query.limit, 100), 300);
+  const statusFilter = ["Active", "Overdue", "Returned"].includes(status)
+    ? "AND BINARY record_status = BINARY :status"
+    : "";
+  query(res, `
+    SELECT
+      record_id, equip_id, equip_name, equipment_status, user_id, user_name,
+      role, contact, borrow_date, plan_return_date, actual_return_date, record_status
+    FROM v_borrowrecord_detail
+    WHERE (:q = '' OR equip_name LIKE :keyword OR user_name LIKE :keyword
+      OR contact LIKE :keyword OR CAST(record_id AS CHAR) = :q)
+      ${statusFilter}
+    ORDER BY record_id DESC
+    LIMIT ${limit}
+  `, { q, keyword: like(q), status });
+});
+
 app.post("/api/borrow", async (req, res) => {
-  const { equip_id, user_id, borrow_date, days } = req.body;
+  const { equip_id, user_id, borrow_date, days, use_transaction } = req.body;
+  const procedure = use_transaction ? "sp_borrow_equipment_tx" : "sp_borrow_equipment";
   try {
-    const [sets] = await pool.query("CALL sp_borrow_equipment(:equip_id, :user_id, :borrow_date, :days)", {
+    const [sets] = await pool.query(`CALL ${procedure}(:equip_id, :user_id, :borrow_date, :days)`, {
       equip_id,
       user_id,
       borrow_date,
@@ -302,7 +340,35 @@ app.post("/api/return", async (req, res) => {
 });
 
 app.get("/api/users/:id/active-count", async (req, res) => {
-  query(res, "SELECT fn_user_active_borrow_count(:id) AS active_count", { id: req.params.id });
+  try {
+    const [[row]] = await pool.query("SELECT fn_user_active_borrow_count(:id) AS active_count", { id: req.params.id });
+    res.json(row);
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+app.post("/api/admin/sync-status", async (_req, res) => {
+  try {
+    await pool.query("CALL sp_sync_equipment_status()");
+    res.json({ ok: true });
+  } catch (error) {
+    sendError(res, error);
+  }
+});
+
+app.post("/api/admin/batch-transfer", async (req, res) => {
+  const { from_room_id, to_room_id, limit } = req.body;
+  try {
+    const [sets] = await pool.query("CALL sp_batch_transfer_available_equipment(:from_room_id, :to_room_id, :limit)", {
+      from_room_id,
+      to_room_id,
+      limit
+    });
+    res.json({ ok: true, row: sets?.[0]?.[0] || null });
+  } catch (error) {
+    sendError(res, error);
+  }
 });
 
 app.listen(port, () => {

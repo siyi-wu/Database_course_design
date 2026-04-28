@@ -238,6 +238,12 @@ select {
   color: #17202a;
 }
 
+input[type="checkbox"] {
+  width: 18px;
+  min-height: 18px;
+  accent-color: #2a9d8f;
+}
+
 input:focus,
 select:focus {
   outline: 2px solid #94d2bd;
@@ -287,6 +293,41 @@ select:focus {
   background: #edf6f9;
   color: #174a5a;
   border-color: #bee1e6;
+}
+
+.toggle-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  color: #516173;
+  font-size: 13px;
+}
+
+.transfer-form {
+  margin-top: 14px;
+  grid-template-columns: repeat(4, minmax(130px, 1fr));
+}
+
+.function-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #d9e2ea;
+  border-radius: 8px;
+  background: #f7fafc;
+}
+
+.function-result span {
+  color: #617286;
+  font-size: 13px;
+}
+
+.function-result strong {
+  font-size: 26px;
 }
 
 .table-wrap {

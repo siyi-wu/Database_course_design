@@ -5,14 +5,14 @@
 首次部署时执行：
 
 ```sql
-SOURCE Q145/01_schema_and_seed.sql;
-SOURCE Q145/02_cursor_procedures.sql;
-SOURCE Q145/03_index_analysis.sql;
-SOURCE Q236/01_triggers.sql;
-SOURCE Q236/02_parameterized_routines.sql;
+SOURCE sql/01_schema/01_schema_and_seed.sql;
+SOURCE sql/02_programmability/01_cursor_procedures.sql;
+SOURCE sql/03_indexes/01_index_analysis.sql;
+SOURCE sql/02_programmability/02_triggers.sql;
+SOURCE sql/02_programmability/03_parameterized_routines.sql;
 ```
 
-如果云数据库中已经存在 Q145 对象，只需执行 Q236 的两个脚本。
+如果云数据库中已经存在基础表、游标过程和索引，只需执行触发器、带参过程和函数脚本。
 
 ## 2. 借用设备
 

@@ -23,11 +23,11 @@
 
 ## 3. 程序与数据库对象设计
 
-- 建表与初始化：由 `Q145/01_schema_and_seed.sql` 完成。
-- 游标过程：由 `Q145/02_cursor_procedures.sql` 完成。
-- 索引分析：由 `Q145/03_index_analysis.sql` 和 benchmark 脚本完成。
-- 触发器：由 `Q236/01_triggers.sql` 完成。
-- 带参过程和函数：由 `Q236/02_parameterized_routines.sql` 完成。
+- 建表与初始化：由 `sql/01_schema/01_schema_and_seed.sql` 完成。
+- 游标过程：由 `sql/02_programmability/01_cursor_procedures.sql` 完成。
+- 索引分析：由 `sql/03_indexes/01_index_analysis.sql` 和 benchmark 脚本完成。
+- 触发器：由 `sql/02_programmability/02_triggers.sql` 完成。
+- 带参过程和函数：由 `sql/02_programmability/03_parameterized_routines.sql` 完成。
 
 ## 4. 借还流程设计
 

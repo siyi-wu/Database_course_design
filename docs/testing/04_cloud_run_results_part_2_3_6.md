@@ -1,18 +1,18 @@
-# Q236 云数据库运行结果
+# 云数据库运行结果
 
 运行环境：
 
 - 数据库：MySQL 8.0 / InnoDB
 - 数据库名：`<database_name>`
 - 部署位置：配置的 MySQL 数据库
-- 基础表结构：已由 `Q145/01_schema_and_seed.sql` 创建
+- 基础表结构：已由 `sql/01_schema/01_schema_and_seed.sql` 创建
 
 ## 1. 创建触发器
 
 执行文件：
 
 ```sql
-SOURCE Q236/01_triggers.sql;
+SOURCE sql/02_programmability/02_triggers.sql;
 ```
 
 已创建 3 个触发器：
@@ -26,7 +26,7 @@ SOURCE Q236/01_triggers.sql;
 执行文件：
 
 ```sql
-SOURCE Q236/02_parameterized_routines.sql;
+SOURCE sql/02_programmability/03_parameterized_routines.sql;
 ```
 
 已创建 2 个带参存储过程：
@@ -43,7 +43,7 @@ SOURCE Q236/02_parameterized_routines.sql;
 执行文件：
 
 ```sql
-SOURCE Q236/04_demo_and_test.sql;
+SOURCE sql/05_demo/01_demo_and_test.sql;
 ```
 
 测试流程：

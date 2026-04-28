@@ -1,12 +1,12 @@
-# Q236 个人负责内容
+# 触发器、带参过程与规范化说明
 
-本目录对应数据库课程设计中本人负责的数据库要求 `(2)(3)(6)`：
+本说明对应数据库课程设计中的数据库要求 `(2)(3)(6)`：
 
 - `(2)` 至少包含三个触发器。
 - `(3)` 至少包含两个带参存储过程或函数。
 - `(6)` 描述应用规范化理论建立模式的详细过程。
 
-系统主题沿用小组统一的“实验室设备管理系统”，基础表结构来自 `Q145/01_schema_and_seed.sql`，不在本目录重复建表。
+系统主题沿用小组统一的“实验室设备管理系统”，基础表结构来自 `sql/01_schema/01_schema_and_seed.sql`，不在本目录重复建表。
 
 ## 文件说明
 
@@ -15,14 +15,13 @@
 - `03_normalization_process.md`：规范化理论建模详细过程。
 - `04_demo_and_test.sql`：云数据库演示与测试脚本。
 - `05_cloud_run_results.md`：云数据库执行结果记录。
-- `generate_report.py`：生成个人报告的脚本。
 
 ## 执行顺序
 
-1. 确认 `Q145/01_schema_and_seed.sql` 已经在 `<database_name>` 中执行。
-2. 执行 `Q236/01_triggers.sql`。
-3. 执行 `Q236/02_parameterized_routines.sql`。
-4. 执行 `Q236/04_demo_and_test.sql`。
+1. 确认 `sql/01_schema/01_schema_and_seed.sql` 已经在 `<database_name>` 中执行。
+2. 执行 `sql/02_programmability/02_triggers.sql`。
+3. 执行 `sql/02_programmability/03_parameterized_routines.sql`。
+4. 执行 `sql/05_demo/01_demo_and_test.sql`。
 
 ## 关键对象
 
